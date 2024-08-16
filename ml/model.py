@@ -1,7 +1,6 @@
 import pickle
 from sklearn.metrics import fbeta_score, precision_score, recall_score
 from ml.data import process_data
-# TODO: add necessary import
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -54,7 +53,7 @@ def inference(model, X):
 
     Inputs
     ------
-    model : ???
+    model : ??? 
         Trained machine learning model.
     X : np.array
         Data used for prediction.
@@ -89,6 +88,9 @@ def load_model(path):
 def performance_on_categorical_slice(
     data, column_name, slice_value, categorical_features, label, encoder, lb, model
 ):
+    print(f"Encoder inside performance_on_categorical_slice: {encoder}")
+    print(f"Label Binarizer inside performance_on_categorical_slice: {lb}") 
+
     """ Computes the model metrics on a slice of the data specified by a column name and
 
     Processes the data using one hot encoding for the categorical features and a
@@ -122,19 +124,23 @@ def performance_on_categorical_slice(
     fbeta : float
 
     """
-    # TODO: implement the function
+    # Filter the DataFrame to get the slice
+    df_slice = data[data[column_name] == slice_value]
+
+    # Process the slice to obtain features and labels
     X_slice, y_slice, _, _ = process_data(
-        data,
+        df_slice,
         categorical_features=categorical_features,
         label=label,
-        training=False
+        training=False,
+        encoder=encoder,
+        lb=lb,
     )
+   
 
-    #filter data
-    mask = data[column_name] == slice_value
-    X_slice = X_slice[mask]
-    y_slice = y_slice[mask]
-
+    # Run inference
     preds = inference(model, X_slice)
+
+    # Compute metrics
     precision, recall, fbeta = compute_model_metrics(y_slice, preds)
     return precision, recall, fbeta
